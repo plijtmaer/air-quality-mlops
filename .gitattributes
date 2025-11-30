@@ -1,0 +1,29 @@
+# Por defecto, todos los archivos de texto usan LF
+* text eol=lf
+
+# Archivos de script / código (por si acaso)
+*.py     text eol=lf
+*.sh     text eol=lf
+*.bash   text eol=lf
+*.yml    text eol=lf
+*.yaml   text eol=lf
+*.toml   text eol=lf
+*.json   text eol=lf
+*.md     text eol=lf
+*.txt    text eol=lf
+*.cfg    text eol=lf
+*.ini    text eol=lf
+*.Dockerfile text eol=lf
+Dockerfile text eol=lf
+
+# Binarios: Git no intenta normalizar ni diffear
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.parquet binary
+*.pkl binary
