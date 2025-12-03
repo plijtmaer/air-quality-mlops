@@ -1,0 +1,3 @@
+# Este archivo asegura que la carpeta plugins/ exista en Git.
+# Plugins personalizados de Airflow van aquí.
+

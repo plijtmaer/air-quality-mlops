@@ -1,0 +1,3 @@
+# Este archivo asegura que la carpeta dags/ exista en Git.
+# Los DAGs de Airflow van aquí.
+

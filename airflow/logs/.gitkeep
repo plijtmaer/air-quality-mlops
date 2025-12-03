@@ -1,0 +1,3 @@
+# Este archivo asegura que la carpeta logs/ exista en Git.
+# Los logs de Airflow se generan aquí en runtime (no se commitean).
+
