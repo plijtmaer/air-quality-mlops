@@ -5,149 +5,198 @@ Proyecto de MLOps end-to-end para clasificación de calidad del aire, desarrolla
 ## 📋 Descripción
 
 Pipeline completo de Machine Learning Operations que:
-1. **Ingesta** datos de calidad del aire desde Open-Meteo API
+1. **Ingesta** datos de calidad del aire desde Open-Meteo API (Airflow)
 2. **Transforma** los datos crudos usando PySpark
-3. **Entrena** modelos de clasificación (próximamente)
-4. **Despliega** una API de inferencia (próximamente)
-5. **Monitorea** el drift de datos (próximamente)
+3. **Versiona** datos con DVC + DagsHub
+4. **Gestiona features** con Feast Feature Store
+5. **Entrena** modelos con PyCaret + Optuna + MLflow
+6. **Sirve** predicciones via FastAPI (próximamente)
+7. **Monitorea** data drift con Evidently (próximamente)
 
 ## 🛠️ Stack Tecnológico
 
-| Componente | Tecnología |
-|------------|------------|
-| Orquestación | Apache Airflow 2.10 |
-| Contenedores | Docker & Docker Compose |
-| Transformación | PySpark (local mode) |
-| Entrenamiento | PyCaret + Optuna (próximamente) |
-| Tracking ML | MLflow (próximamente) |
-| API | FastAPI (próximamente) |
-| Monitoreo | Evidently (próximamente) |
-| CI/CD | GitHub Actions (próximamente) |
+| Componente | Tecnología | Estado |
+|------------|------------|--------|
+| Orquestación | Apache Airflow 2.10 | ✅ |
+| Contenedores | Docker & Docker Compose | ✅ |
+| Transformación | PySpark (local mode) | ✅ |
+| Versionado de Datos | DVC + DagsHub | ✅ |
+| Feature Store | Feast | ✅ |
+| AutoML | PyCaret | ✅ |
+| Hyperparameter Tuning | Optuna | ✅ |
+| Experiment Tracking | MLflow (DagsHub) | ✅ |
+| API | FastAPI | ⏳ |
+| Monitoreo | Evidently | ⏳ |
+| IaC | Terraform | ⏳ |
+| Kubernetes | Kind (local) | ⏳ |
 
 ## 📁 Estructura del Proyecto
 
 ```
 air-quality-mlops/
-├── airflow/                    # Configuración de Apache Airflow
-│   ├── dags/                   # Definiciones de DAGs
-│   │   ├── hello_airflow.py    # DAG de prueba
-│   │   ├── ingest_air_quality.py
-│   │   └── transform_air_quality.py
-│   ├── logs/                   # Logs de ejecución (gitignore)
-│   ├── plugins/                # Plugins personalizados
-│   ├── docker-compose.yaml     # Servicios Docker
-│   ├── Dockerfile              # Imagen custom con Java+PySpark
-│   ├── .env                    # Variables de entorno
-│   └── README.md               # Documentación de Airflow
+├── airflow/                          # Apache Airflow
+│   ├── dags/                         # Definiciones de DAGs
+│   │   ├── hello_airflow.py          # DAG de prueba
+│   │   ├── ingest_air_quality.py     # Ingesta desde Open-Meteo
+│   │   └── transform_air_quality.py  # Transformación PySpark
+│   ├── docker-compose.yaml           # Servicios Docker
+│   ├── Dockerfile                    # Imagen custom (Java+PySpark)
+│   └── README.md
 │
-├── src/                        # Código fuente Python
-│   ├── ingestion/              # Módulo de ingesta
-│   │   ├── __init__.py
-│   │   └── open_meteo_client.py
-│   ├── transform/              # Módulo de transformación
-│   │   ├── __init__.py
-│   │   └── air_quality_transform.py
-│   ├── training/               # (próximamente)
-│   ├── inference/              # (próximamente)
-│   └── monitoring/             # (próximamente)
+├── src/                              # Código fuente Python
+│   ├── ingestion/                    # Módulo de ingesta
+│   │   └── open_meteo_client.py      # Cliente Open-Meteo API
+│   ├── transform/                    # Módulo de transformación
+│   │   └── air_quality_transform.py  # Pipeline PySpark
+│   ├── training/                     # Módulo de entrenamiento
+│   │   └── train.py                  # PyCaret + Optuna + MLflow
+│   ├── inference/                    # Módulo de inferencia (próximamente)
+│   └── monitoring/                   # Módulo de monitoreo (próximamente)
 │
-├── data/                       # Datos (gitignore excepto .gitkeep)
-│   ├── raw/                    # JSON crudos de la API
-│   │   └── Buenos_Aires/
-│   ├── stg/                    # Staging (no usado actualmente)
-│   └── curated/                # Parquet procesados
-│       └── Buenos_Aires_air_quality.parquet/
+├── feature_store/                    # Feast Feature Store
+│   └── air_quality_features/
+│       └── feature_repo/
+│           ├── air_quality_features.py  # Definición de features
+│           └── feature_store.yaml       # Configuración
 │
-├── mlflow/                     # Artefactos de MLflow (próximamente)
-├── notebooks/                  # Jupyter notebooks de exploración
-├── .github/workflows/          # GitHub Actions (próximamente)
+├── data/                             # Datos (versionados con DVC)
+│   ├── raw/                          # JSON crudos de la API
+│   └── curated/                      # Parquet procesados
+│
+├── models/                           # Modelos entrenados
+│   └── air_quality_*_tuned.pkl       # Modelo PyCaret
+│
+├── .dvc/                             # Configuración DVC
+├── .venv/                            # Virtual environment
 ├── .gitignore
 ├── .gitattributes
-└── README.md                   # Este archivo
+├── data/raw.dvc                      # Puntero DVC a datos raw
+├── data/curated.dvc                  # Puntero DVC a datos curated
+└── README.md
 ```
 
 ## 🚀 Inicio Rápido
 
 ### Requisitos Previos
 
-- Docker Desktop instalado y corriendo
-- ~6GB de espacio en disco para imágenes Docker
-- Puerto 8080 disponible
+- Python 3.11+
+- Docker Desktop
+- Git
+- ~6GB de espacio en disco
 
-### 1. Clonar el Repositorio
+### 1. Clonar y Configurar Entorno
 
 ```bash
-git clone <tu-repo>
+git clone https://github.com/plijtmaer/air-quality-mlops.git
 cd air-quality-mlops
+
+# Crear virtual environment con uv (recomendado)
+uv venv .venv --python 3.11 --seed
+source .venv/Scripts/activate  # Windows Git Bash
+# o
+.venv\Scripts\activate         # Windows PowerShell
+
+# Instalar dependencias
+uv pip install dvc dagshub mlflow feast pycaret optuna
 ```
 
-### 2. Levantar Airflow
+### 2. Descargar Datos (DVC)
+
+```bash
+# Configurar credenciales DVC (solo primera vez)
+dvc remote modify origin --local auth basic
+dvc remote modify origin --local user TU_USUARIO_DAGSHUB
+dvc remote modify origin --local password TU_TOKEN_DAGSHUB
+
+# Descargar datos
+dvc pull
+```
+
+### 3. Ejecutar Training
+
+```bash
+python -m src.training.train
+
+# Con parámetros personalizados
+python -m src.training.train --metric F1 --min-f1 0.7 --tune-trials 30
+```
+
+### 4. Levantar Airflow (opcional)
 
 ```bash
 cd airflow
-
-# Construir imagen custom con Java + PySpark (~5 min primera vez)
 docker compose build
-
-# Levantar servicios (~1 min)
 docker compose up -d
-
-# Verificar que todo está corriendo
-docker compose ps
+# UI: http://localhost:8080 (airflow/airflow)
 ```
 
-### 3. Acceder a la UI
+## 📊 Pipeline de Datos
 
-- **URL**: http://localhost:8080
-- **Usuario**: `airflow`
-- **Password**: `airflow`
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│   Open-Meteo    │────▶│   data/raw/     │────▶│  data/curated/  │
+│      API        │     │   *.json        │     │   *.parquet     │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+        │                       │                       │
+   Airflow DAG             DVC tracked            PySpark ETL
+   (@hourly)                                    + clasificación
+```
 
-### 4. Ejecutar el Pipeline
+## 🤖 Pipeline de Training
 
-1. En la UI, activa el DAG `ingest_air_quality` (toggle ON)
-2. Click en "Trigger DAG" (▶️) para ejecutar la ingesta
-3. Espera a que termine (tarea verde = éxito)
-4. Activa y ejecuta `transform_air_quality`
-5. Verifica los datos generados:
-   ```bash
-   ls data/raw/Buenos_Aires/          # JSONs crudos
-   ls data/curated/                   # Parquet procesado
-   ```
+```
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  data/curated/  │────▶│     PyCaret     │────▶│     Optuna      │
+│   *.parquet     │     │ compare_models  │     │   tune_model    │
+└─────────────────┘     └─────────────────┘     └─────────────────┘
+                               │                       │
+                               ▼                       ▼
+                        ┌─────────────────┐     ┌─────────────────┐
+                        │     MLflow      │     │     models/     │
+                        │    (DagsHub)    │     │   *.pkl         │
+                        └─────────────────┘     └─────────────────┘
+```
 
-### 5. Detener y Limpiar
+### Resultados del Último Training
+
+| Métrica | Valor |
+|---------|-------|
+| **Mejor modelo** | Decision Tree Classifier |
+| **F1 Score** | 0.9886 (98.86%) |
+| **AUC** | 0.95 (95%) |
+| **Accuracy** | 0.9923 (99.23%) |
+
+Ver experimentos: https://dagshub.com/plijtmaer/air-quality-mlops.mlflow
+
+## 🍽️ Feast Feature Store
+
+Features definidas para calidad del aire:
+
+| Feature | Tipo | Descripción |
+|---------|------|-------------|
+| `pm2_5` | Float | PM2.5 (μg/m³) |
+| `pm10` | Float | PM10 (μg/m³) |
+| `carbon_monoxide` | Float | CO (μg/m³) |
+| `nitrogen_dioxide` | Float | NO2 (μg/m³) |
+| `sulphur_dioxide` | Float | SO2 (μg/m³) |
+| `ozone` | Float | O3 (μg/m³) |
+| `us_aqi` | Int | US Air Quality Index |
+| `european_aqi` | Int | European AQI |
+| `air_quality_label` | String | good/moderate/unhealthy |
+
+### Usar Feast
 
 ```bash
-# Detener servicios (preserva datos)
-docker compose down
+cd feature_store/air_quality_features/feature_repo
 
-# Eliminar todo (incluye volúmenes de BD)
-docker compose down -v
+# Aplicar definiciones
+feast apply
 
-# Eliminar imágenes (libera ~6GB)
-docker rmi airflow-custom:2.10.1-pyspark apache/airflow:2.10.1-python3.11 postgres:15 redis:7
+# Materializar features
+feast materialize-incremental $(date -u +"%Y-%m-%dT%H:%M:%S")
 ```
 
-## 📊 Datos
-
-### Fuente de Datos
-
-**Open-Meteo Air Quality API** (gratuita, sin API key)
-- https://open-meteo.com/en/docs/air-quality-api
-
-### Variables Capturadas (por hora)
-
-| Variable | Unidad | Descripción |
-|----------|--------|-------------|
-| `pm2_5` | μg/m³ | Partículas < 2.5 micras |
-| `pm10` | μg/m³ | Partículas < 10 micras |
-| `carbon_monoxide` | μg/m³ | Monóxido de carbono |
-| `nitrogen_dioxide` | μg/m³ | Dióxido de nitrógeno |
-| `sulphur_dioxide` | μg/m³ | Dióxido de azufre |
-| `ozone` | μg/m³ | Ozono |
-| `us_aqi` | índice | US Air Quality Index |
-| `european_aqi` | índice | European AQI |
-
-### Clasificación de Calidad del Aire
+## 📈 Clasificación de Calidad del Aire
 
 Basada en EPA AQI para PM2.5:
 
@@ -157,77 +206,48 @@ Basada en EPA AQI para PM2.5:
 | `moderate` | 12 - 35.4 | Calidad moderada |
 | `unhealthy` | ≥ 35.4 | No saludable |
 
-### Cobertura Temporal
+## 🔗 Enlaces
 
-- **Granularidad**: Horaria (1 registro por hora)
-- **Histórico**: 7 días hacia atrás
-- **Forecast**: 1 día hacia adelante
-- **Ciudad**: Buenos Aires, Argentina (-34.6, -58.4)
-
-## 🔄 Pipeline de Datos
-
-```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   Open-Meteo    │────▶│   data/raw/     │────▶│  data/curated/  │
-│      API        │     │   *.json        │     │   *.parquet     │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
-        │                       │                       │
-   Ingesta DAG            JSON crudo              PySpark ETL
-   (@hourly)              con arrays             DataFrame tabular
-                          anidados               + clasificación
-```
-
-### DAG de Ingesta (`ingest_air_quality`)
-
-- **Schedule**: `@hourly`
-- **Acción**: Llama a Open-Meteo API → guarda JSON en `data/raw/{city}/`
-- **Dependencias**: `requests` (incluido en Airflow)
-
-### DAG de Transformación (`transform_air_quality`)
-
-- **Schedule**: Cada 6 horas (`0 */6 * * *`)
-- **Acción**: Lee JSONs → aplana con PySpark → clasifica → guarda Parquet
-- **Dependencias**: PySpark + Java (incluidos en imagen custom)
-
-## 🐳 Arquitectura Docker
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    Docker Compose                            │
-├─────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
-│  │  Webserver  │  │  Scheduler  │  │   Worker    │          │
-│  │   :8080     │  │             │  │  (Celery)   │          │
-│  └─────────────┘  └─────────────┘  └─────────────┘          │
-│         │                │                │                  │
-│         └────────────────┼────────────────┘                  │
-│                          │                                   │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │
-│  │  PostgreSQL │  │    Redis    │  │  Triggerer  │          │
-│  │  (metadata) │  │  (broker)   │  │             │          │
-│  └─────────────┘  └─────────────┘  └─────────────┘          │
-├─────────────────────────────────────────────────────────────┤
-│  Volúmenes montados:                                         │
-│  - ./dags → /opt/airflow/dags                               │
-│  - ./logs → /opt/airflow/logs                               │
-│  - ../src → /opt/airflow/src                                │
-│  - ../data → /opt/airflow/data                              │
-└─────────────────────────────────────────────────────────────┘
-```
+- **DagsHub Repo**: https://dagshub.com/plijtmaer/air-quality-mlops
+- **MLflow Experiments**: https://dagshub.com/plijtmaer/air-quality-mlops.mlflow
+- **Open-Meteo API**: https://open-meteo.com/en/docs/air-quality-api
 
 ## 📝 Próximos Pasos
 
-- [ ] **Entrenamiento**: Implementar pipeline con PyCaret + Optuna
-- [ ] **MLflow**: Tracking de experimentos y registro de modelos
-- [ ] **FastAPI**: API de inferencia con el mejor modelo
+- [ ] **FastAPI**: API REST para inferencia (`src/inference/`)
 - [ ] **Evidently**: Monitoreo de data drift
-- [ ] **GitHub Actions**: CI/CD para despliegue automatizado
+- [ ] **Docker**: Containerizar la aplicación completa
+- [ ] **Terraform**: Infraestructura como código
+- [ ] **Kind**: Deployment en Kubernetes local
+- [ ] **GitHub Actions**: CI/CD
+
+## 🛠️ Comandos Útiles
+
+```bash
+# Training
+python -m src.training.train
+
+# DVC
+dvc pull                    # Descargar datos
+dvc push                    # Subir datos
+dvc status                  # Ver estado
+
+# Feast
+cd feature_store/air_quality_features/feature_repo
+feast apply                 # Aplicar cambios
+feast materialize-incremental "2025-12-05T00:00:00"
+
+# Airflow
+cd airflow
+docker compose up -d        # Levantar
+docker compose down         # Detener
+docker compose logs -f      # Ver logs
+```
 
 ## 👤 Autor
 
-Proyecto desarrollado por Paul Lijtmaer como trabajo final de posgrado en MLOps.
+Proyecto desarrollado por **Paul Lijtmaer** como trabajo final de posgrado en MLOps.
 
 ## 📄 Licencia
 
 Este proyecto es de uso académico.
-

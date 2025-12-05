@@ -1,0 +1,20 @@
+project: air_quality_features
+provider: local
+
+# Registry: almacena metadatos de features
+registry: data/registry.db
+
+# Online store: para serving en tiempo real
+online_store:
+  type: sqlite
+  path: data/online_store.db
+
+# Offline store: para training (usa archivos locales)
+offline_store:
+  type: file
+
+entity_key_serialization_version: 3
+
+# Sin autenticación para desarrollo local
+auth:
+  type: no_auth

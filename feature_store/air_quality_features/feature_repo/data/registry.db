@@ -1,0 +1,61 @@
+
+K
++
+__dummy"
+__dummy_idJair_quality_features
+ÌûÈÉ¨¼İçÌûÈÉ¨¼İç
+y
+Y
+city3Ciudad donde se miden los datos de calidad del aire"cityJair_quality_features
+ÌûÈÉ¨¼İçÌûÈÉ¨¼İç1"$0a50adcb-c1a9-4882-ad44-87a66a849aee*ƒüÈÉèÿİ¡2×
+Ÿ
+air_quality_hourlyair_quality_featurescity"
+pm2_5"PM2.5 (Î¼g/mÂ³)"
+pm10"PM10 (Î¼g/mÂ³)"!
+carbon_monoxide"CO (Î¼g/mÂ³)"#
+nitrogen_dioxide"NO2 (Î¼g/mÂ³)""
+sulphur_dioxide"SO2 (Î¼g/mÂ³)"
+ozone"O3 (Î¼g/mÂ³)" 
+us_aqi"US Air Quality Index"
+european_aqi"European AQI"
+latitude"Latitud"
+	longitude"Longitud">
+air_quality_label"'ClasificaciÃ³n: good/moderate/unhealthy*
+teammlops*%
+projectair-quality-classification2€õ$:·	timestampZ86../../../data/curated/Buenos_Aires_air_quality.parquetŠ1feast.infra.offline_stores.file_source.FileSource¢air_quality_parquet_source’ÌûÈÉÈ‚ÉÀ"ÌûÈÉ¨¼İç@b
+city3
+ÌûÈÉ¨¼İçƒüÈÉèÿİ¡
+ƒ‡¤ÉÀßú'ûûÈÉ:œ
+û
+air_quality_trainingair_quality_features‡
+air_quality_hourly
+pm2_5"PM2.5 (Î¼g/mÂ³)
+pm10"PM10 (Î¼g/mÂ³)!
+carbon_monoxide"CO (Î¼g/mÂ³)#
+nitrogen_dioxide"NO2 (Î¼g/mÂ³)"
+sulphur_dioxide"SO2 (Î¼g/mÂ³)
+ozone"O3 (Î¼g/mÂ³) 
+us_aqi"US Air Quality Index
+european_aqi"European AQI
+latitude"Latitud
+	longitude"Longitud>
+air_quality_label"'ClasificaciÃ³n: good/moderate/unhealthyBƒ	timestampZ86../../../data/curated/Buenos_Aires_air_quality.parquet¢air_quality_parquet_source’ÌûÈÉÈ‚ÉÀ"ÌûÈÉ¨¼İç*CFeatures para entrenar modelo de clasificaciÃ³n de calidad del aire
+ÌûÈÉ¨¼İçÌûÈÉ¨¼İç:£
+‚
+air_quality_inferenceair_quality_features—
+air_quality_hourly
+pm2_5"PM2.5 (Î¼g/mÂ³)
+pm10"PM10 (Î¼g/mÂ³)!
+carbon_monoxide"CO (Î¼g/mÂ³)#
+nitrogen_dioxide"NO2 (Î¼g/mÂ³)"
+sulphur_dioxide"SO2 (Î¼g/mÂ³)
+ozone"O3 (Î¼g/mÂ³) 
+us_aqi"US Air Quality Index
+european_aqi"European AQIBƒ	timestampZ86../../../data/curated/Buenos_Aires_air_quality.parquet¢air_quality_parquet_source’ÌûÈÉÈ‚ÉÀ"ÌûÈÉ¨¼İç*9Features para inference (predicciÃ³n de calidad del aire)
+ÌûÈÉ¨¼İçÌûÈÉ¨¼İçRâ
+ß
+,feast.infra.online_stores.sqlite.SqliteTable"®
+‚C:\Users\plijt\Downloads\Documentos Locales\air-quality-mlops\feature_store\air_quality_features\feature_repo\data\online_store.db'air_quality_features_air_quality_hourlybÎ	timestampZ86../../../data/curated/Buenos_Aires_air_quality.parquetŠ1feast.infra.offline_stores.file_source.FileSource¢air_quality_parquet_sourceªair_quality_features’ÌûÈÉÈ‚ÉÀ"ÌûÈÉ¨¼İçŠh
+H
+air_quality_features0Features de calidad del aire para clasificaciÃ³n
+ÌûÈÉØ¶¨ÀÌûÈÉØ¶¨À
