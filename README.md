@@ -225,7 +225,7 @@ Basada en EPA AQI para PM2.5:
 
 ## 👤 Autor
 
-Proyecto desarrollado por Pcomo trabajo final de posgrado en MLOps.
+Proyecto desarrollado por Paul Lijtmaer como trabajo final de posgrado en MLOps.
 
 ## 📄 Licencia
 
