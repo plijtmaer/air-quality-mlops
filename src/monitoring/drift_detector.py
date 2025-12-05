@@ -225,12 +225,23 @@ class DriftDetector:
         """
         logger.info("Generando reporte de monitoreo...")
         
+        # Filtrar solo columnas disponibles
+        available_columns = [c for c in self.numerical_features if c in current_data.columns]
+        current_data = current_data[available_columns].copy()
+        ref_data = self.reference_data[available_columns].copy()
+        
+        # Column mapping sin target
+        report_column_mapping = ColumnMapping(
+            numerical_features=available_columns,
+        )
+        
         # Construir lista de métricas
         metrics = [DataDriftPreset()]
         
         if include_data_quality:
             metrics.append(DataQualityPreset())
         
+        # Solo incluir target drift si el target está presente
         if include_target_drift and self.target_column in current_data.columns:
             metrics.append(TargetDriftPreset())
         
@@ -238,9 +249,9 @@ class DriftDetector:
         report = Report(metrics=metrics)
         
         report.run(
-            reference_data=self.reference_data,
+            reference_data=ref_data,
             current_data=current_data,
-            column_mapping=self.column_mapping,
+            column_mapping=report_column_mapping,
         )
         
         # Guardar reporte

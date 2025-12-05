@@ -70,6 +70,9 @@ air-quality-mlops/
 ├── models/                           # Modelos entrenados
 │   └── air_quality_*_tuned.pkl       # Modelo PyCaret
 │
+├── reports/                          # Reportes generados
+│   └── monitoring/                   # Reportes de Evidently (HTML)
+│
 ├── .dvc/                             # Configuración DVC
 ├── .venv/                            # Virtual environment
 ├── .gitignore
@@ -310,7 +313,19 @@ curl -X POST "http://localhost:8000/monitoring/drift" \
 
 ### Reportes HTML
 
-Los reportes se guardan en `reports/monitoring/` como archivos HTML interactivos.
+Los reportes se guardan en `reports/monitoring/` como archivos HTML interactivos con:
+- 📊 Distribución de cada feature (referencia vs actual)
+- 📈 Tests estadísticos de drift por variable
+- 🎨 Gráficos interactivos con Plotly
+
+```bash
+# Generar reporte via API
+curl -X POST "http://localhost:8000/monitoring/report" \
+  -H "Content-Type: application/json" \
+  -d '{"samples": [{"pm2_5": 15, "pm10": 25, ...}]}'
+
+# El reporte se guarda en: reports/monitoring/drift_report_YYYYMMDD_HHMMSS.html
+```
 
 ## 📝 Próximos Pasos
 
