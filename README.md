@@ -11,7 +11,7 @@ Pipeline completo de Machine Learning Operations que:
 4. **Gestiona features** con Feast Feature Store
 5. **Entrena** modelos con PyCaret + Optuna + MLflow
 6. **Sirve** predicciones via FastAPI
-7. **Monitorea** data drift con Evidently (próximamente)
+7. **Monitorea** data drift con Evidently
 
 ## 🛠️ Stack Tecnológico
 
@@ -26,7 +26,7 @@ Pipeline completo de Machine Learning Operations que:
 | Hyperparameter Tuning | Optuna | ✅ |
 | Experiment Tracking | MLflow (DagsHub) | ✅ |
 | API | FastAPI | ✅ |
-| Monitoreo | Evidently | ⏳ |
+| Monitoreo | Evidently | ✅ |
 | IaC | Terraform | ⏳ |
 | Kubernetes | Kind (local) | ⏳ |
 
@@ -54,7 +54,8 @@ air-quality-mlops/
 │   │   ├── main.py                   # Endpoints REST
 │   │   ├── model.py                  # Carga del modelo
 │   │   └── schemas.py                # Schemas Pydantic
-│   └── monitoring/                   # Módulo de monitoreo (próximamente)
+│   └── monitoring/                   # Monitoreo con Evidently
+│       └── drift_detector.py         # Detección de data drift
 │
 ├── feature_store/                    # Feast Feature Store
 │   └── air_quality_features/
@@ -207,7 +208,8 @@ API REST para predicción de calidad del aire.
 
 ```bash
 # Activar entorno virtual
-.venv\Scripts\activate  # Windows
+source .venv/bin/activate  # Mac/Linux
+.venv\Scripts\activate     # Windows
 
 # Iniciar servidor
 uvicorn src.inference.main:app --host 0.0.0.0 --port 8000
@@ -270,10 +272,50 @@ Basada en EPA AQI para PM2.5:
 - **MLflow Experiments**: https://dagshub.com/plijtmaer/air-quality-mlops.mlflow
 - **Open-Meteo API**: https://open-meteo.com/en/docs/air-quality-api
 
+## 📊 Monitoreo con Evidently
+
+Detección de data drift comparando datos de producción con datos de entrenamiento.
+
+### Endpoints de Monitoreo
+
+| Endpoint | Método | Descripción |
+|----------|--------|-------------|
+| `/monitoring/drift` | POST | Detectar drift en datos |
+| `/monitoring/reference-stats` | GET | Estadísticas de referencia |
+| `/monitoring/report` | POST | Generar reporte HTML |
+
+### Ejemplo de Detección de Drift
+
+```bash
+curl -X POST "http://localhost:8000/monitoring/drift" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "samples": [
+      {"pm2_5": 15.5, "pm10": 25.0, "carbon_monoxide": 200.0, "nitrogen_dioxide": 10.5, "sulphur_dioxide": 5.0, "ozone": 50.0, "us_aqi": 42, "european_aqi": 35},
+      {"pm2_5": 18.0, "pm10": 30.0, "carbon_monoxide": 250.0, "nitrogen_dioxide": 12.0, "sulphur_dioxide": 6.0, "ozone": 55.0, "us_aqi": 50, "european_aqi": 40}
+    ]
+  }'
+```
+
+**Respuesta:**
+```json
+{
+  "timestamp": "2025-12-05T...",
+  "drift_detected": false,
+  "drift_score": 0.0,
+  "drifted_features": [],
+  "feature_details": {...}
+}
+```
+
+### Reportes HTML
+
+Los reportes se guardan en `reports/monitoring/` como archivos HTML interactivos.
+
 ## 📝 Próximos Pasos
 
-- [ ] **FastAPI**: API REST para inferencia (`src/inference/`)
-- [ ] **Evidently**: Monitoreo de data drift
+- [x] ~~**FastAPI**: API REST para inferencia~~
+- [x] ~~**Evidently**: Monitoreo de data drift~~
 - [ ] **Docker**: Containerizar la aplicación completa
 - [ ] **Terraform**: Infraestructura como código
 - [ ] **Kind**: Deployment en Kubernetes local
@@ -284,6 +326,9 @@ Basada en EPA AQI para PM2.5:
 ```bash
 # Training
 python -m src.training.train
+
+# FastAPI
+uvicorn src.inference.main:app --port 8000
 
 # DVC
 dvc pull                    # Descargar datos

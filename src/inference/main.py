@@ -295,6 +295,119 @@ async def model_info():
 
 
 # =============================================================================
+# Monitoring Endpoints (Evidently)
+# =============================================================================
+
+@app.post(
+    "/monitoring/drift",
+    summary="Detectar Data Drift",
+    description="Analiza si hay drift entre datos de referencia y datos actuales",
+    tags=["Monitoring"],
+)
+async def detect_drift(input_data: BatchAirQualityInput):
+    """
+    Detecta data drift en un lote de datos.
+    
+    Compara las distribuciones de features entre los datos
+    de entrenamiento (referencia) y los datos proporcionados.
+    """
+    try:
+        import pandas as pd
+        from src.monitoring.drift_detector import get_detector
+        
+        # Convertir input a DataFrame
+        samples = [sample.model_dump() for sample in input_data.samples]
+        current_data = pd.DataFrame(samples)
+        
+        # Detectar drift
+        detector = get_detector()
+        drift_results = detector.detect_drift(current_data)
+        
+        return drift_results
+        
+    except FileNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Datos de referencia no disponibles: {e}"
+        )
+    except Exception as e:
+        logger.error(f"Error detectando drift: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+
+@app.get(
+    "/monitoring/reference-stats",
+    summary="Estadísticas de Referencia",
+    description="Retorna estadísticas de los datos de entrenamiento",
+    tags=["Monitoring"],
+)
+async def reference_stats():
+    """
+    Retorna estadísticas descriptivas de los datos de referencia.
+    """
+    try:
+        from src.monitoring.drift_detector import get_detector
+        
+        detector = get_detector()
+        stats = detector.get_reference_stats()
+        
+        return stats
+        
+    except FileNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Datos de referencia no disponibles: {e}"
+        )
+    except Exception as e:
+        logger.error(f"Error obteniendo estadísticas: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+
+@app.post(
+    "/monitoring/report",
+    summary="Generar Reporte de Drift",
+    description="Genera un reporte HTML completo de drift",
+    tags=["Monitoring"],
+)
+async def generate_drift_report(input_data: BatchAirQualityInput):
+    """
+    Genera un reporte HTML de drift y lo guarda en reports/monitoring/.
+    
+    Retorna la ruta al archivo generado.
+    """
+    try:
+        import pandas as pd
+        from src.monitoring.drift_detector import get_detector
+        
+        # Convertir input a DataFrame
+        samples = [sample.model_dump() for sample in input_data.samples]
+        current_data = pd.DataFrame(samples)
+        
+        # Generar reporte
+        detector = get_detector()
+        report_path = detector.generate_report(current_data)
+        
+        return {
+            "status": "success",
+            "report_path": str(report_path),
+            "message": f"Reporte generado exitosamente en {report_path}"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error generando reporte: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+
+
+# =============================================================================
 # Main
 # =============================================================================
 
