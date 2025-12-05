@@ -10,7 +10,7 @@ Pipeline completo de Machine Learning Operations que:
 3. **Versiona** datos con DVC + DagsHub
 4. **Gestiona features** con Feast Feature Store
 5. **Entrena** modelos con PyCaret + Optuna + MLflow
-6. **Sirve** predicciones via FastAPI (próximamente)
+6. **Sirve** predicciones via FastAPI
 7. **Monitorea** data drift con Evidently (próximamente)
 
 ## 🛠️ Stack Tecnológico
@@ -25,7 +25,7 @@ Pipeline completo de Machine Learning Operations que:
 | AutoML | PyCaret | ✅ |
 | Hyperparameter Tuning | Optuna | ✅ |
 | Experiment Tracking | MLflow (DagsHub) | ✅ |
-| API | FastAPI | ⏳ |
+| API | FastAPI | ✅ |
 | Monitoreo | Evidently | ⏳ |
 | IaC | Terraform | ⏳ |
 | Kubernetes | Kind (local) | ⏳ |
@@ -50,7 +50,10 @@ air-quality-mlops/
 │   │   └── air_quality_transform.py  # Pipeline PySpark
 │   ├── training/                     # Módulo de entrenamiento
 │   │   └── train.py                  # PyCaret + Optuna + MLflow
-│   ├── inference/                    # Módulo de inferencia (próximamente)
+│   ├── inference/                    # API FastAPI
+│   │   ├── main.py                   # Endpoints REST
+│   │   ├── model.py                  # Carga del modelo
+│   │   └── schemas.py                # Schemas Pydantic
 │   └── monitoring/                   # Módulo de monitoreo (próximamente)
 │
 ├── feature_store/                    # Feast Feature Store
@@ -194,6 +197,61 @@ feast apply
 
 # Materializar features
 feast materialize-incremental $(date -u +"%Y-%m-%dT%H:%M:%S")
+```
+
+## 🚀 FastAPI Inference API
+
+API REST para predicción de calidad del aire.
+
+### Iniciar el Servidor
+
+```bash
+# Activar entorno virtual
+.venv\Scripts\activate  # Windows
+
+# Iniciar servidor
+uvicorn src.inference.main:app --host 0.0.0.0 --port 8000
+
+# O con recarga automática (desarrollo)
+uvicorn src.inference.main:app --reload --port 8000
+```
+
+### Endpoints Disponibles
+
+| Endpoint | Método | Descripción |
+|----------|--------|-------------|
+| `/` | GET | Info de la API |
+| `/health` | GET | Health check |
+| `/predict` | POST | Predicción individual |
+| `/predict/batch` | POST | Predicción en lote |
+| `/model/info` | GET | Info del modelo |
+| `/docs` | GET | Swagger UI |
+| `/redoc` | GET | ReDoc |
+
+### Ejemplo de Predicción
+
+```bash
+curl -X POST "http://localhost:8000/predict" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "pm2_5": 15.5,
+    "pm10": 25.0,
+    "carbon_monoxide": 200.0,
+    "nitrogen_dioxide": 10.5,
+    "sulphur_dioxide": 5.0,
+    "ozone": 50.0,
+    "us_aqi": 42,
+    "european_aqi": 35
+  }'
+```
+
+**Respuesta:**
+```json
+{
+  "prediction": "moderate",
+  "confidence": 1.0,
+  "probabilities": null
+}
 ```
 
 ## 📈 Clasificación de Calidad del Aire
