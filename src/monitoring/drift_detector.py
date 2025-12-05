@@ -125,13 +125,17 @@ class DriftDetector:
         """
         logger.info("Ejecutando detección de drift...")
         
-        # Asegurar que tenemos las columnas necesarias
-        columns_needed = self.numerical_features.copy()
-        if self.target_column in current_data.columns:
-            columns_needed.append(self.target_column)
-        
-        available_columns = [c for c in columns_needed if c in current_data.columns]
+        # Asegurar que tenemos las columnas necesarias (solo numéricas)
+        available_columns = [c for c in self.numerical_features if c in current_data.columns]
         current_data = current_data[available_columns].copy()
+        
+        # Usar solo las columnas disponibles en reference_data también
+        ref_data = self.reference_data[available_columns].copy()
+        
+        # Column mapping sin target para drift detection de features
+        drift_column_mapping = ColumnMapping(
+            numerical_features=available_columns,
+        )
         
         # Crear reporte de drift
         report = Report(metrics=[
@@ -139,9 +143,9 @@ class DriftDetector:
         ])
         
         report.run(
-            reference_data=self.reference_data,
+            reference_data=ref_data,
             current_data=current_data,
-            column_mapping=self.column_mapping,
+            column_mapping=drift_column_mapping,
         )
         
         # Extraer resultados
