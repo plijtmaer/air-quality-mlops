@@ -327,11 +327,40 @@ curl -X POST "http://localhost:8000/monitoring/report" \
 # El reporte se guarda en: reports/monitoring/drift_report_YYYYMMDD_HHMMSS.html
 ```
 
+## 🐳 Docker
+
+La API está completamente Dockerizada.
+
+### Comandos Docker
+
+```bash
+# Construir imagen
+docker compose build
+
+# Levantar servicios
+docker compose up -d
+
+# Ver logs
+docker compose logs -f api
+
+# Detener servicios
+docker compose down
+
+# Ver estado
+docker compose ps
+```
+
+### Acceso
+
+- **API**: http://localhost:8000
+- **Swagger UI**: http://localhost:8000/docs
+- **Health Check**: http://localhost:8000/health
+
 ## 📝 Próximos Pasos
 
 - [x] ~~**FastAPI**: API REST para inferencia~~
 - [x] ~~**Evidently**: Monitoreo de data drift~~
-- [ ] **Docker**: Containerizar la aplicación completa
+- [x] ~~**Docker**: Containerizar la aplicación completa~~
 - [ ] **Terraform**: Infraestructura como código
 - [ ] **Kind**: Deployment en Kubernetes local
 - [ ] **GitHub Actions**: CI/CD

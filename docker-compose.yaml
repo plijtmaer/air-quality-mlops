@@ -1,0 +1,74 @@
+# =============================================================================
+# Docker Compose - Air Quality MLOps
+# =============================================================================
+#
+# Orquesta todos los servicios del proyecto.
+#
+# Uso:
+#   docker compose up -d          # Levantar servicios
+#   docker compose down           # Detener servicios
+#   docker compose logs -f api    # Ver logs de la API
+#   docker compose build          # Reconstruir imágenes
+#
+# =============================================================================
+
+services:
+  # ===========================================================================
+  # FastAPI Inference API
+  # ===========================================================================
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: air-quality-api:latest
+    container_name: air-quality-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      - LOG_LEVEL=info
+    volumes:
+      # Montar reportes para persistencia
+      - ./reports:/app/reports
+      # Montar modelos (para actualizaciones sin rebuild)
+      - ./models:/app/models:ro
+      # Montar datos curados (read-only)
+      - ./data/curated:/app/data/curated:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: unless-stopped
+    networks:
+      - air-quality-network
+
+  # ===========================================================================
+  # (Opcional) Training Service - Para re-entrenar modelos
+  # ===========================================================================
+  # training:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.training
+  #   image: air-quality-training:latest
+  #   container_name: air-quality-training
+  #   environment:
+  #     - MLFLOW_TRACKING_URI=https://dagshub.com/plijtmaer/air-quality-mlops.mlflow
+  #   volumes:
+  #     - ./data:/app/data
+  #     - ./models:/app/models
+  #   networks:
+  #     - air-quality-network
+  #   profiles:
+  #     - training  # Solo se levanta con: docker compose --profile training up
+
+networks:
+  air-quality-network:
+    driver: bridge
+    name: air-quality-network
+
+volumes:
+  reports:
+    driver: local
+

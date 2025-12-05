@@ -1,0 +1,79 @@
+# =============================================================================
+# Docker Ignore - Air Quality MLOps
+# =============================================================================
+
+# Git
+.git
+.gitattributes
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv
+ENV
+env
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+.cursor
+
+# Logs
+*.log
+logs/
+logs.log
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+.tox
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb
+
+# DVC (datos ya copiados selectivamente)
+.dvc
+*.dvc
+
+# Airflow (tiene su propio Docker)
+airflow/
+
+# Feast feature store (no necesario para inference)
+feature_store/
+
+# Archivos temporales
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Notebooks
+notebooks/
+
+# Build
+dist/
+build/
+*.egg-info
+
+# Docs
+docs/
+
+# Tests
+test_*.py
+tests/
+
+# Raw data (solo necesitamos curated)
+data/raw/
+data/stg/
+
+# UV lock
+uv.lock
+
