@@ -393,14 +393,52 @@ terraform destroy
 
 Ver más detalles en [`infrastructure/README.md`](infrastructure/README.md).
 
-## 📝 Próximos Pasos
+## 🔄 CI/CD con GitHub Actions
+
+El proyecto incluye 3 workflows automatizados:
+
+### Workflows
+
+| Workflow | Trigger | Descripción |
+|----------|---------|-------------|
+| **CI Pipeline** | Push/PR a main | Lint, tests, security scan, Docker build |
+| **CD Pipeline** | Tags `v*.*.*` | Build y push a GitHub Container Registry |
+| **Model Training** | Manual/Push a training | Entrena modelo y sube a MLflow |
+
+### CI Pipeline (ci.yaml)
+- ✅ Linting con Ruff
+- ✅ Formato con Black
+- ✅ Imports con isort
+- ✅ Security scan con Bandit
+- ✅ Docker build test
+
+### CD Pipeline (cd.yaml)
+- 🐳 Build multi-arquitectura (amd64, arm64)
+- 📦 Push a GitHub Container Registry
+- 🏷️ Tags semánticos automáticos
+
+### Model Training (model-training.yaml)
+- 🤖 Ejecuta pipeline de training
+- 📊 Logs a MLflow/DagsHub
+- 💾 Guarda modelo como artifact
+
+### Secrets necesarios
+
+Configura en GitHub → Settings → Secrets:
+
+```
+MLFLOW_TRACKING_URI=https://dagshub.com/plijtmaer/air-quality-mlops.mlflow
+DAGSHUB_USER_TOKEN=<tu-token>
+```
+
+## 📝 Estado del Proyecto
 
 - [x] ~~**FastAPI**: API REST para inferencia~~
 - [x] ~~**Evidently**: Monitoreo de data drift~~
 - [x] ~~**Docker**: Containerizar la aplicación completa~~
 - [x] ~~**Terraform**: Infraestructura como código~~
 - [x] ~~**Kind**: Deployment en Kubernetes local~~
-- [ ] **GitHub Actions**: CI/CD
+- [x] ~~**GitHub Actions**: CI/CD~~
 
 ## 🛠️ Comandos Útiles
 

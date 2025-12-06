@@ -1,0 +1,112 @@
+# =============================================================================
+# Model Training Pipeline - Air Quality MLOps
+# =============================================================================
+#
+# Este workflow ejecuta el pipeline de entrenamiento de modelos.
+#
+# Triggers:
+#   - Manual (workflow_dispatch)
+#   - Cambios en datos o código de training
+#
+# Nota: Requiere secrets configurados para DagsHub/MLflow
+#
+# =============================================================================
+
+name: Model Training
+
+on:
+  workflow_dispatch:
+    inputs:
+      experiment_name:
+        description: 'Nombre del experimento en MLflow'
+        required: true
+        default: 'air_quality_classification'
+      n_trials:
+        description: 'Número de trials para Optuna'
+        required: true
+        default: '20'
+  push:
+    branches: [main]
+    paths:
+      - 'src/training/**'
+      - 'data/curated/**'
+
+env:
+  PYTHON_VERSION: "3.11"
+  MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+  DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
+
+jobs:
+  # ===========================================================================
+  # Train Model
+  # ===========================================================================
+  train:
+    name: Train Model
+    runs-on: ubuntu-latest
+    # Solo ejecutar si hay secrets configurados o es manual
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && vars.TRAINING_ENABLED == 'true')
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Instalar dependencias
+        run: |
+          pip install --upgrade pip
+          pip install \
+            pandas \
+            numpy \
+            scikit-learn \
+            pycaret \
+            mlflow \
+            dagshub \
+            optuna \
+            pyarrow
+
+      - name: Setup DVC (si hay datos versionados)
+        run: |
+          pip install dvc
+          # Si hay remote configurado, hacer pull
+          if [ -f "data/curated.dvc" ]; then
+            echo "DVC files found, but skipping pull (requires credentials)"
+          fi
+
+      - name: Ejecutar training
+        env:
+          MLFLOW_TRACKING_URI: ${{ secrets.MLFLOW_TRACKING_URI }}
+          DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
+        run: |
+          # Solo ejecutar si hay datos disponibles
+          if [ -d "data/curated" ] && [ -n "$(ls -A data/curated 2>/dev/null)" ]; then
+            python -m src.training.train
+          else
+            echo "⚠️ No hay datos curados disponibles. Saltando training."
+            echo "Para entrenar localmente, ejecuta primero el pipeline de ingesta y transformación."
+          fi
+
+      - name: Guardar modelo como artefacto
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: trained-model
+          path: models/
+          retention-days: 30
+
+      - name: Resumen de training
+        run: |
+          echo "## 🤖 Model Training Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Experiment:** ${{ github.event.inputs.experiment_name || 'air_quality_classification' }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Optuna Trials:** ${{ github.event.inputs.n_trials || '20' }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -d "models" ]; then
+            echo "**Modelos generados:**" >> $GITHUB_STEP_SUMMARY
+            ls -la models/ >> $GITHUB_STEP_SUMMARY
+          fi
+
