@@ -91,20 +91,102 @@ air-quality-mlops/
 - Git
 - ~6GB de espacio en disco
 
+### Instalación por Sistema Operativo
+
+<details>
+<summary>🍎 <b>macOS</b></summary>
+
+```bash
+# Instalar Homebrew (si no lo tienes)
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Instalar dependencias
+brew install python@3.11 uv git
+brew install --cask docker
+
+# Para Kubernetes (opcional)
+brew install kind terraform kubectl
+```
+</details>
+
+<details>
+<summary>🪟 <b>Windows</b></summary>
+
+```powershell
+# Instalar Chocolatey (ejecutar PowerShell como Admin)
+Set-ExecutionPolicy Bypass -Scope Process -Force
+[System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
+iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+
+# Reiniciar PowerShell y luego instalar
+choco install python311 git docker-desktop -y
+
+# Para Kubernetes (opcional)
+choco install kind terraform kubernetes-cli -y
+
+# Habilitar scripts en PowerShell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+```
+</details>
+
+<details>
+<summary>🐧 <b>Linux (Ubuntu/Debian)</b></summary>
+
+```bash
+# Actualizar e instalar Python
+sudo apt update
+sudo apt install python3.11 python3.11-venv git curl -y
+
+# Instalar Docker
+curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo usermod -aG docker $USER
+
+# Para Kubernetes (opcional)
+# Kind
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+chmod +x ./kind
+sudo mv ./kind /usr/local/bin/kind
+
+# Terraform
+wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+sudo apt update && sudo apt install terraform kubectl -y
+```
+</details>
+
 ### 1. Clonar y Configurar Entorno
 
 ```bash
 git clone https://github.com/plijtmaer/air-quality-mlops.git
 cd air-quality-mlops
+```
 
-# Crear virtual environment con uv (recomendado)
-uv venv .venv --python 3.11 --seed
-source .venv/Scripts/activate  # Windows Git Bash
-# o
-.venv\Scripts\activate         # Windows PowerShell
+**Crear virtual environment:**
 
-# Instalar dependencias
-uv pip install dvc dagshub mlflow feast pycaret optuna
+```bash
+# macOS / Linux
+python3.11 -m venv .venv
+source .venv/bin/activate
+
+# Windows PowerShell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+
+# Windows Git Bash
+python -m venv .venv
+source .venv/Scripts/activate
+```
+
+**Instalar dependencias:**
+
+```bash
+# Opción 1: Con uv (más rápido)
+pip install uv
+uv pip install dvc dagshub mlflow feast pycaret optuna fastapi uvicorn evidently
+
+# Opción 2: Con pip tradicional
+pip install dvc dagshub mlflow feast pycaret optuna fastapi uvicorn evidently
 ```
 
 ### 2. Descargar Datos (DVC)
@@ -360,17 +442,57 @@ docker compose ps
 
 Infraestructura como código para desplegar en Kubernetes local.
 
-### Requisitos
+### Instalar Kind y Terraform
 
-1. **Kind**: [Descargar](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
-2. **Terraform**: [Descargar](https://developer.hashicorp.com/terraform/downloads)
+<details>
+<summary>🍎 <b>macOS</b></summary>
 
-### Despliegue
+```bash
+brew install kind terraform kubectl
+```
+</details>
+
+<details>
+<summary>🪟 <b>Windows</b> (PowerShell como Admin)</summary>
+
+```powershell
+# Con Chocolatey
+choco install kind terraform kubernetes-cli -y
+
+# O descargar manualmente:
+# Kind: https://kind.sigs.k8s.io/dl/v0.20.0/kind-windows-amd64
+# Terraform: https://releases.hashicorp.com/terraform/
+```
+</details>
+
+<details>
+<summary>🐧 <b>Linux</b></summary>
+
+```bash
+# Kind
+curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.20.0/kind-linux-amd64
+chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind
+
+# Terraform
+sudo apt install terraform
+```
+</details>
+
+### Verificar Instalación
+
+```bash
+kind version      # Debería mostrar v0.20.0 o superior
+terraform version # Debería mostrar v1.x.x
+kubectl version   # Cliente de Kubernetes
+```
+
+### Despliegue con Terraform
 
 ```bash
 cd infrastructure/terraform
-terraform init
-terraform apply
+terraform init    # Inicializar providers
+terraform plan    # Ver qué se va a crear
+terraform apply   # Crear cluster y deploy (confirmar con 'yes')
 ```
 
 ### Acceso
@@ -387,7 +509,10 @@ kubectl get pods -n air-quality
 # Ver logs
 kubectl logs -f deployment/air-quality-api -n air-quality
 
-# Destruir
+# Escalar réplicas
+kubectl scale deployment air-quality-api --replicas=3 -n air-quality
+
+# Destruir todo
 terraform destroy
 ```
 
