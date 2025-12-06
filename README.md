@@ -5,6 +5,8 @@ Proyecto de MLOps end-to-end para clasificación de calidad del aire, desarrolla
 ## 📋 Descripción
 
 Pipeline completo de Machine Learning Operations que:
+
+> 📊 **Ver [Diagrama de Arquitectura Completo](docs/architecture.md)** con Mermaid
 1. **Ingesta** datos de calidad del aire desde Open-Meteo API (Airflow)
 2. **Transforma** los datos crudos usando PySpark
 3. **Versiona** datos con DVC + DagsHub
