@@ -29,8 +29,9 @@ Pipeline completo de Machine Learning Operations que:
 | Experiment Tracking | MLflow (DagsHub) | ✅ |
 | API | FastAPI | ✅ |
 | Monitoreo | Evidently | ✅ |
-| IaC | Terraform | ⏳ |
-| Kubernetes | Kind (local) | ⏳ |
+| IaC | Terraform | ✅ |
+| Kubernetes | Kind (local) | ✅ |
+| CI/CD | GitHub Actions | ✅ |
 
 ## 📁 Estructura del Proyecto
 
@@ -75,12 +76,26 @@ air-quality-mlops/
 ├── reports/                          # Reportes generados
 │   └── monitoring/                   # Reportes de Evidently (HTML)
 │
+├── infrastructure/                   # Infraestructura como código
+│   ├── terraform/                    # Archivos Terraform
+│   │   ├── main.tf                   # Recursos principales
+│   │   ├── variables.tf              # Variables
+│   │   └── outputs.tf                # Outputs
+│   └── k8s/                          # Manifiestos Kubernetes
+│       ├── deployment.yaml           # Deployment de la API
+│       └── service.yaml              # Service NodePort
+│
+├── docs/                             # Documentación
+│   └── architecture.md               # Diagramas de arquitectura
+│
+├── .github/workflows/                # CI/CD Pipelines
+│   ├── ci.yaml                       # Lint, tests, build
+│   ├── cd.yaml                       # Build y push imagen
+│   └── model-training.yaml           # Training automático
+│
 ├── .dvc/                             # Configuración DVC
-├── .venv/                            # Virtual environment
-├── .gitignore
-├── .gitattributes
-├── data/raw.dvc                      # Puntero DVC a datos raw
-├── data/curated.dvc                  # Puntero DVC a datos curated
+├── Dockerfile                        # Imagen Docker de la API
+├── docker-compose.yaml               # Orquestación Docker
 └── README.md
 ```
 
@@ -241,12 +256,19 @@ docker compose up -d
 │   *.parquet     │     │ compare_models  │     │   tune_model    │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
                                │                       │
+                          logs métricas           Tuned Model
+                               │                       │
                                ▼                       ▼
                         ┌─────────────────┐     ┌─────────────────┐
-                        │     MLflow      │     │     models/     │
+                        │     MLflow      │◀────│     models/     │
                         │    (DagsHub)    │     │   *.pkl         │
                         └─────────────────┘     └─────────────────┘
 ```
+
+**Flujo detallado:**
+1. **PyCaret** compara ~15 modelos → selecciona el mejor por F1
+2. **Optuna** tunea hiperparámetros del mejor modelo (20 trials)
+3. **Modelo final** se exporta como `.pkl` y se loguea en MLflow
 
 ### Resultados del Último Training
 

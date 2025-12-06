@@ -78,9 +78,10 @@ flowchart TB
     
     FEATURES --> PYCARET
     PYCARET --> OPTUNA
+    PYCARET --> MLFLOW
     OPTUNA --> MLFLOW
     MLFLOW --> DAGSHUB
-    PYCARET --> MODEL
+    OPTUNA --> MODEL
     
     MODEL --> FASTAPI
     FASTAPI --> DOCKER
@@ -130,12 +131,14 @@ flowchart LR
     B -->|JSON| C[⚡ PySpark]
     C -->|Parquet| D[🍽️ Feast]
     D -->|Features| E[🔬 PyCaret]
-    E -->|Model| F[⚡ FastAPI]
-    F -->|Predictions| G[👤 Users]
+    E -->|Best Model| F[🎯 Optuna]
+    F -->|Tuned Model| G[⚡ FastAPI]
+    G -->|Predictions| H[👤 Users]
     
-    C -.->|track| H[📊 DVC]
-    E -.->|log| I[📈 MLflow]
-    F -.->|monitor| J[📉 Evidently]
+    C -.->|track| I[📊 DVC]
+    E -.->|log| J[📈 MLflow]
+    F -.->|log| J
+    G -.->|monitor| K[📉 Evidently]
 ```
 
 ## Stack Tecnológico
