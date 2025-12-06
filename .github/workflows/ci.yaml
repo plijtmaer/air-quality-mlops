@@ -87,9 +87,8 @@ jobs:
       - name: Ejecutar tests unitarios
         run: |
           # Verificamos que los imports funcionan
-          python -c "from src.inference.schemas import AirQualityFeatures; print('✅ Schemas OK')"
+          python -c "from src.inference.schemas import AirQualityInput, AirQualityPrediction; print('✅ Schemas OK')"
           python -c "from src.ingestion.open_meteo_client import fetch_air_quality_data; print('✅ Ingestion OK')"
-          python -c "from src.transform.air_quality_transform import run_air_quality_transform; print('✅ Transform OK')" || true
           echo "✅ All imports successful"
 
   # ===========================================================================
