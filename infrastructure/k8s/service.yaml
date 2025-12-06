@@ -1,0 +1,21 @@
+# =============================================================================
+# Service - Exponer la API
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: air-quality-api
+  namespace: air-quality
+  labels:
+    app: air-quality-api
+spec:
+  type: NodePort
+  selector:
+    app: air-quality-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+      nodePort: 30000  # Accesible en localhost:8080 (mapeado en kind-config)
+      protocol: TCP
+

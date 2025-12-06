@@ -356,13 +356,50 @@ docker compose ps
 - **Swagger UI**: http://localhost:8000/docs
 - **Health Check**: http://localhost:8000/health
 
+## ☸️ Kubernetes (Kind + Terraform)
+
+Infraestructura como código para desplegar en Kubernetes local.
+
+### Requisitos
+
+1. **Kind**: [Descargar](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
+2. **Terraform**: [Descargar](https://developer.hashicorp.com/terraform/downloads)
+
+### Despliegue
+
+```bash
+cd infrastructure/terraform
+terraform init
+terraform apply
+```
+
+### Acceso
+
+- **API**: http://localhost:8080
+- **Swagger UI**: http://localhost:8080/docs
+
+### Comandos útiles
+
+```bash
+# Ver pods
+kubectl get pods -n air-quality
+
+# Ver logs
+kubectl logs -f deployment/air-quality-api -n air-quality
+
+# Destruir
+terraform destroy
+```
+
+Ver más detalles en [`infrastructure/README.md`](infrastructure/README.md).
+
 ## 📝 Próximos Pasos
 
 - [x] ~~**FastAPI**: API REST para inferencia~~
 - [x] ~~**Evidently**: Monitoreo de data drift~~
 - [x] ~~**Docker**: Containerizar la aplicación completa~~
-- [ ] **Terraform**: Infraestructura como código
-- [ ] **Kind**: Deployment en Kubernetes local
+- [x] ~~**Terraform**: Infraestructura como código~~
+- [x] ~~**Kind**: Deployment en Kubernetes local~~
 - [ ] **GitHub Actions**: CI/CD
 
 ## 🛠️ Comandos Útiles

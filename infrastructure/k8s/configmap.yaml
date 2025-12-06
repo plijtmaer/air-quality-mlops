@@ -1,0 +1,16 @@
+# =============================================================================
+# ConfigMap - Configuración de la aplicación
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: air-quality-config
+  namespace: air-quality
+  labels:
+    app: air-quality-api
+data:
+  LOG_LEVEL: "info"
+  PYTHONPATH: "/app"
+  # MLflow tracking (opcional)
+  MLFLOW_TRACKING_URI: "https://dagshub.com/plijtmaer/air-quality-mlops.mlflow"
+
