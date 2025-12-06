@@ -54,12 +54,10 @@ RUN pip install --upgrade pip && \
 
 # Copiar el código fuente
 COPY src/ ./src/
-COPY models/ ./models/
-COPY data/curated/ ./data/curated/
-COPY reports/ ./reports/
 
-# Crear directorios necesarios
-RUN mkdir -p /app/reports/monitoring
+# Crear directorios para datos y modelos
+# En producción, estos se montan como volúmenes
+RUN mkdir -p /app/models /app/data/curated /app/reports/monitoring
 
 # Exponer puerto
 EXPOSE 8000

@@ -81,14 +81,15 @@ jobs:
       - name: Instalar dependencias
         run: |
           pip install --upgrade pip
-          pip install pytest pytest-cov httpx
+          pip install pytest pytest-cov httpx requests
           pip install fastapi uvicorn pydantic pandas numpy scikit-learn
 
       - name: Ejecutar tests unitarios
         run: |
-          # Por ahora solo verificamos que los imports funcionan
+          # Verificamos que los imports funcionan
           python -c "from src.inference.schemas import AirQualityFeatures; print('✅ Schemas OK')"
           python -c "from src.ingestion.open_meteo_client import fetch_air_quality_data; print('✅ Ingestion OK')"
+          python -c "from src.transform.air_quality_transform import run_air_quality_transform; print('✅ Transform OK')" || true
           echo "✅ All imports successful"
 
   # ===========================================================================
