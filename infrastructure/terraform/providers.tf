@@ -35,8 +35,10 @@ provider "kind" {}
 
 # Configurar el provider de Kubernetes
 # Se conecta al cluster Kind creado
+# Nota: El cluster debe existir primero, usamos alias para recursos que dependen del cluster
 provider "kubernetes" {
-  config_path    = kind_cluster.air_quality.kubeconfig_path
-  config_context = "kind-${var.cluster_name}"
+  # Usar configuración por defecto de kubectl
+  # El contexto se crea automáticamente cuando Kind crea el cluster
+  config_path = "~/.kube/config"
 }
 
